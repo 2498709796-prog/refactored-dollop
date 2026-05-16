@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>智晟达包装 - 在线报价单（可管理）</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Helvetica, sans-serif;
+            background: #f5f7fb;
+            padding: 20px 16px 40px;
+            color: #1e293b;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .company-name {
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3c72, #2b4c8a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .sub {
+            color: #5b6e8c;
+            font-size: 0.8rem;
+            margin-top: 6px;
+            border-top: 1px solid #e2e8f0;
+            display: inline-block;
+            padding-top: 6px;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: #f1f5f9;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filter-btn.active {
+            background: #2c5f8a;
+            color: white;
+            box-shadow: 0 2px 6px rgba(44,95,138,0.2);
+        }
+        .admin-btn-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .admin-toggle, .add-product-btn {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .admin-toggle.active {
+            background: #1e293b;
+            color: white;
+            border-color: #1e293b;
+        }
+        .add-product-btn {
+            background: #2c5f8a;
+            border-color: #2c5f8a;
+            color: white;
+        }
+        .save-hint {
+            font-size: 0.7rem;
+            background: #e6f7e6;
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: #2e7d32;
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 18px;
+            margin-top: 8px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.1s ease, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #edf2f7;
+            position: relative;
+        }
+        .product-card:hover {
+            box-shadow: 0 12px 20px -12px rgba(0,0,0,0.15);
+        }
+        .card-img {
+            width: 100%;
+            height: 150px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-bottom: 1px solid #eef2f6;
+            position: relative;
+        }
+        .card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .img-placeholder {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-info {
+            padding: 14px 16px 16px;
+            flex: 1;
+        }
+        .product-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+        }
+        .product-spec {
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            background: #f1f5f9;
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-top: 6px;
+            margin-bottom: 10px;
+            word-break: break-word;
+        }
+        .detail-row {
+            font-size: 0.8rem;
+            color: #334155;
+            margin: 8px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: space-between;
+            border-top: 1px dashed #ecf3fa;
+            padding-top: 8px;
+        }
+        .price {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #0f3b5c;
+            letter-spacing: -0.5px;
+        }
+        .price-unit {
+            font-size: 0.75rem;
+            font-weight: normal;
+            color: #5b6e8c;
+        }
+        .edit-mode-controls {
+            margin-top: 12px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .edit-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .edit-field label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #2c5f8a;
+        }
+        .edit-field input {
+            padding: 8px 10px;
+            border-radius: 16px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.8rem;
+            background: #fefefe;
+        }
+        .save-single-btn, .delete-product-btn {
+            background: #eef2ff;
+            border: none;
+            padding: 6px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            text-align: center;
+        }
+        .save-single-btn {
+            color: #2c5f8a;
+        }
+        .delete-product-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+            margin-top: 5px;
+        }
+        .badge-cat {
+            font-size: 0.65rem;
+            background: #e2e8f0;
+            padding: 2px 8px;
+            border-radius: 30px;
+            display: inline-block;
+        }
+        footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            padding: 16px;
+        }
+        /* 模态框 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 32px;
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-card h3 {
+            margin-bottom: 16px;
+            font-size: 1.3rem;
+        }
+        .modal-card input, .modal-card select {
+            width: 100%;
+            padding: 10px 12px;
+            margin: 8px 0 12px;
+            border-radius: 30px;
+            border: 1px solid #cbd5e1;
+            font-size: 0.9rem;
+        }
+        .modal-card label {
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            border-radius: 40px;
+            border: none;
+            font-weight: 500;
+        }
+        .no-data {
+            text-align: center;
+            grid-column: 1/-1;
+            padding: 40px;
+            color: #94a3b8;
+        }
+        @media (max-width: 640px) {
+            body {
+                padding: 12px 12px 30px;
+            }
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="company-name">📦 沭阳智晟达包装有限公司</div>
+    <div class="sub">专业包装 · 源头工厂 · 支持定制</div>
+</div>
+
+<div class="toolbar">
+    <div class="filter-group" id="filterGroup">
+        <button data-cat="all" class="filter-btn active">全部产品</button>
+        <button data-cat="胶带" class="filter-btn">📜 胶带</button>
+        <button data-cat="缠绕膜" class="filter-btn">📦 缠绕膜</button>
+        <button data-cat="纸箱" class="filter-btn">📦 纸箱</button>
+        <button data-cat="气泡膜" class="filter-btn">💨 气泡膜</button>
+        <button data-cat="手套" class="filter-btn">🧤 手套</button>
+    </div>
+    <div class="admin-btn-group">
+        <button id="adminBtn" class="admin-toggle">🔐 管理员入口</button>
+        <button id="addProductBtn" class="add-product-btn" style="display:none;">➕ 添加产品</button>
+    </div>
+</div>
+<div id="productsContainer" class="products-grid"></div>
+<footer>注：所有报价不含税，不含运费，最终以合同为准。<br>管理员模式下可直接修改/删除产品，并可添加新产品，数据自动保存。</footer>
+
+<script>
+    // 初始产品数据 (同之前)
+    function buildInitialProducts() {
+        return [
+            { id: "t1", category: "胶带", name: "BOPP封箱胶带", spec: "厚度17mm / 4.2cm*100米", extra: "透明黄/白 | 42卷/箱", price: "", imgUrl: "" },
+            { id: "t2", category: "胶带", name: "BOPP封箱胶带", spec: "厚度20mm / 4.2cm*120米", extra: "透明黄/白 | 42卷/箱", price: "", imgUrl: "" },
+            { id: "t3", category: "胶带", name: "BOPP封箱胶带", spec: "厚度不详 / 4.2cm*180米", extra: "透明黄/白 | 49卷/箱", price: "", imgUrl: "" },
+            { id: "t4", category: "胶带", name: "BOPP封箱胶带", spec: "厚度30mm / 4.2cm*200米", extra: "透明黄/白 | 42卷/箱", price: "", imgUrl: "" },
+            { id: "t5", category: "胶带", name: "BOPP封箱胶带", spec: "厚度60mm / 4.2cm*500米", extra: "透明黄/白 | 15卷/箱", price: "", imgUrl: "" },
+            { id: "t6", category: "胶带", name: "BOPP封箱胶带", spec: "厚度常规 / 4.2cm*1000米", extra: "透明黄/白 | 按个卖", price: "", imgUrl: "" },
+            { id: "t7", category: "胶带", name: "BOPP封箱胶带", spec: "厚度17mm / 4.5cm*100米", extra: "透明黄/白 | 66卷/箱", price: "", imgUrl: "" },
+            { id: "t8", category: "胶带", name: "BOPP封箱胶带", spec: "厚度17mm / 5.0cm*100米", extra: "透明黄/白 | 66卷/箱", price: "", imgUrl: "" },
+            { id: "t9", category: "胶带", name: "BOPP封箱胶带", spec: "厚度40mm / 5.0cm*300米", extra: "透明黄/白 | 30卷/箱", price: "", imgUrl: "" },
+            { id: "t10", category: "胶带", name: "BOPP封箱胶带", spec: "厚度60mm / 5.0cm*500米", extra: "透明黄/白 | 按个卖", price: "", imgUrl: "" },
+            { id: "t11", category: "胶带", name: "BOPP封箱胶带", spec: "厚度17mm / 5.5cm*100米", extra: "透明黄/白 | 55卷/箱", price: "", imgUrl: "" },
+            { id: "t12", category: "胶带", name: "BOPP封箱胶带", spec: "厚度24mm / 5.5cm*150米", extra: "透明黄/白 | 40卷/箱", price: "", imgUrl: "" },
+            { id: "t13", category: "胶带", name: "BOPP封箱胶带", spec: "厚度24mm / 6.0cm*150米", extra: "透明黄/白 | 40卷/箱", price: "", imgUrl: "" },
+            { id: "c1", category: "缠绕膜", name: "机用/手用缠绕膜", spec: "宽度10cm", extra: "105卷/箱 · 透明白", price: "", imgUrl: "" },
+            { id: "c2", category: "缠绕膜", name: "缠绕膜", spec: "宽度15cm", extra: "透明白 · 卷数未标", price: "", imgUrl: "" },
+            { id: "c3", category: "缠绕膜", name: "缠绕膜", spec: "宽度50cm · 17kg", extra: "4卷/箱 · 透明白", price: "1**", imgUrl: "" },
+            { id: "c4", category: "缠绕膜", name: "缠绕膜", spec: "宽度50cm · 18kg", extra: "4卷/箱 · 透明白", price: "1**", imgUrl: "" },
+            { id: "c5", category: "缠绕膜", name: "缠绕膜", spec: "宽度1M", extra: "2卷/箱 · 透明白", price: "", imgUrl: "" },
+            { id: "z3", category: "纸箱", name: "3号纸箱", spec: "43×21×27 cm", extra: "个卖", price: "", imgUrl: "" },
+            { id: "z4", category: "纸箱", name: "4号纸箱", spec: "35×19×23 cm", extra: "个卖", price: "1", imgUrl: "" },
+            { id: "z5", category: "纸箱", name: "5号纸箱", spec: "29×17×19 cm", extra: "个卖", price: "0.63", imgUrl: "" },
+            { id: "z6", category: "纸箱", name: "6号纸箱", spec: "26×15×18 cm", extra: "个卖", price: "0.55", imgUrl: "" },
+            { id: "z7", category: "纸箱", name: "7号纸箱", spec: "23×13×16 cm", extra: "个卖", price: "0.41", imgUrl: "" },
+            { id: "z8", category: "纸箱", name: "8号纸箱", spec: "21×11×14 cm", extra: "个卖", price: "0.31", imgUrl: "" },
+            { id: "z9", category: "纸箱", name: "9号纸箱", spec: "19×10×13 cm", extra: "个卖", price: "0.29", imgUrl: "" },
+            { id: "z10", category: "纸箱", name: "10号纸箱", spec: "17×9×11 cm", extra: "个卖", price: "0.25", imgUrl: "" },
+            { id: "z11", category: "纸箱", name: "11号纸箱", spec: "15×8×10 cm", extra: "个卖", price: "0.2", imgUrl: "" },
+            { id: "z12", category: "纸箱", name: "12号纸箱", spec: "13×8×9 cm", extra: "个卖", price: "0.17", imgUrl: "" },
+            { id: "q1", category: "气泡膜", name: "气泡膜", spec: "宽度20cm", extra: "5卷/袋", price: "", imgUrl: "" },
+            { id: "q2", category: "气泡膜", name: "气泡膜", spec: "宽度30cm", extra: "常规包装", price: "", imgUrl: "" },
+            { id: "q3", category: "气泡膜", name: "气泡膜", spec: "宽度40cm", extra: "常规包装", price: "", imgUrl: "" },
+            { id: "q4", category: "气泡膜", name: "气泡膜", spec: "宽度50cm", extra: "3卷/袋", price: "", imgUrl: "" },
+            { id: "q5", category: "气泡膜", name: "气泡膜", spec: "宽度60cm", extra: "2卷/袋", price: "", imgUrl: "" },
+            { id: "q6", category: "气泡膜", name: "气泡膜", spec: "宽度70cm", extra: "2卷/袋", price: "", imgUrl: "" },
+            { id: "s1", category: "手套", name: "尼龙纱手套（薄）", spec: "10双/袋", extra: "", price: "6", imgUrl: "" },
+            { id: "s2", category: "手套", name: "纱手套（橙边）", spec: "10双/袋", extra: "", price: "7", imgUrl: "" },
+            { id: "s3", category: "手套", name: "纱手套（蓝边）", spec: "10双/袋", extra: "", price: "8", imgUrl: "" },
+            { id: "s4", category: "手套", name: "尼龙纱手套", spec: "12双/袋", extra: "", price: "9", imgUrl: "" },
+            { id: "s5", category: "手套", name: "双达单面胶手套", spec: "12双/袋", extra: "", price: "19", imgUrl: "" },
+            { id: "s6", category: "手套", name: "双达双面胶手套", spec: "12双/袋", extra: "", price: "24", imgUrl: "" },
+            { id: "s7", category: "手套", name: "贵隆胶手套（红指头）", spec: "12双/袋", extra: "", price: "25", imgUrl: "" },
+            { id: "s8", category: "手套", name: "牛郎星胶手套", spec: "12双/袋", extra: "", price: "30", imgUrl: "" },
+            { id: "s9", category: "手套", name: "织女星胶手套", spec: "12双/袋", extra: "", price: "35", imgUrl: "" },
+            { id: "s10", category: "手套", name: "同富胶手套", spec: "12双/袋", extra: "", price: "35", imgUrl: "" },
+            { id: "s11", category: "手套", name: "同富胶皮手套", spec: "", extra: "", price: "", imgUrl: "" },
+            { id: "s12", category: "手套", name: "十指佳人胶皮手套", spec: "12双/袋", extra: "", price: "44", imgUrl: "" },
+            { id: "s13", category: "手套", name: "狼行记胶皮手套", spec: "12双/袋", extra: "", price: "43", imgUrl: "" },
+            { id: "s14", category: "手套", name: "星宇胶手套", spec: "12双/袋", extra: "", price: "44", imgUrl: "" },
+            { id: "s15", category: "手套", name: "老百姓胶手套", spec: "12双/袋", extra: "", price: "", imgUrl: "" },
+            { id: "s16", category: "手套", name: "鲁坤胶手套", spec: "12双/袋", extra: "", price: "", imgUrl: "" },
+            { id: "s17", category: "手套", name: "薄款涂胶手套", spec: "12双/袋", extra: "", price: "", imgUrl: "" },
+        ];
+    }
+
+    let productsData = [];
+    let isAdminMode = false;
+    let currentFilter = "all";
+
+    function loadDataFromStorage() {
+        const stored = localStorage.getItem("zhishengda_quote_products");
+        if (stored) {
+            try {
+                productsData = JSON.parse(stored);
+                console.log("已加载存储数据");
+            } catch(e) { productsData = buildInitialProducts(); }
+        } else {
+            productsData = buildInitialProducts();
+        }
+    }
+
+    function persistData() {
+        localStorage.setItem("zhishengda_quote_products", JSON.stringify(productsData));
+    }
+
+    function updateProductField(productId, field, value) {
+        const idx = productsData.findIndex(p => p.id === productId);
+        if (idx !== -1) {
+            productsData[idx][field] = value;
+            persistData();
+            renderProducts();
+        }
+    }
+
+    function deleteProduct(productId) {
+        if (confirm("确定要删除该产品吗？")) {
+            productsData = productsData.filter(p => p.id !== productId);
+            persistData();
+            renderProducts();
+        }
+    }
+
+    function addProduct(newProduct) {
+        // 生成简单唯一id
+        newProduct.id = Date.now() + "-" + Math.random().toString(36).substr(2, 6);
+        productsData.push(newProduct);
+        persistData();
+        renderProducts();
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function renderProducts() {
+        const container = document.getElementById('productsContainer');
+        if (!container) return;
+        let filtered = productsData.filter(p => currentFilter === "all" ? true : p.category === currentFilter);
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="no-data">暂无该类产品，请点击“添加产品”增加</div>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(product => {
+            const priceValue = (product.price && product.price.trim() !== "") ? product.price : "待询价";
+            const priceDisplay = priceValue === "待询价" ? "待询价" : `¥ ${priceValue}`;
+            let imgHtml = '';
+            if (product.imgUrl && product.imgUrl.trim() !== "") {
+                imgHtml = `<img src="${product.imgUrl}" alt="${product.name}" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<div class=\"img-placeholder\">📷 图片加载失败</div>'">`;
+            } else {
+                imgHtml = `<div class="img-placeholder">📷 暂无图片<br><span style="font-size:10px;">可管理员模式添加</span></div>`;
+            }
+
+            let editSection = '';
+            if (isAdminMode) {
+                editSection = `
+                    <div class="edit-mode-controls">
+                        <div class="edit-field">
+                            <label>💰 修改价格 (元)</label>
+                            <input type="text" class="price-input" data-id="${product.id}" data-field="price" value="${escapeHtml(product.price)}" placeholder="例: 12.5">
+                        </div>
+                        <div class="edit-field">
+                            <label>🖼️ 图片链接 (URL)</label>
+                            <input type="text" class="img-input" data-id="${product.id}" data-field="imgUrl" value="${escapeHtml(product.imgUrl)}" placeholder="https://...">
+                        </div>
+                        <button class="save-single-btn" data-id="${product.id}" data-action="save">💾 保存修改</button>
+                        <button class="delete-product-btn" data-id="${product.id}" data-action="delete">🗑️ 删除产品</button>
+                    </div>
+                `;
+            }
+
+            let specDetail = product.spec || '';
+            let extraInfo = product.extra ? ` | ${product.extra}` : '';
+            return `
+                <div class="product-card" data-id="${product.id}">
+                    <div class="card-img">
+                        ${imgHtml}
+                    </div>
+                    <div class="card-info">
+                        <div class="product-name">
+                            <span>${escapeHtml(product.name)}</span>
+                            <span class="badge-cat">${escapeHtml(product.category)}</span>
+                        </div>
+                        <div class="product-spec">${escapeHtml(specDetail)} ${extraInfo}</div>
+                        <div class="detail-row">
+                            <span class="price">${priceDisplay}</span>
+                            <span class="price-unit">/ 单位(卷/个/袋等)</span>
+                        </div>
+                        ${editSection}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        if (isAdminMode) {
+            document.querySelectorAll('.save-single-btn').forEach(btn => {
+                btn.removeEventListener('click', handleSaveSingle);
+                btn.addEventListener('click', handleSaveSingle);
+            });
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.removeEventListener('click', handleDeleteProduct);
+                btn.addEventListener('click', handleDeleteProduct);
+            });
+            document.querySelectorAll('.price-input, .img-input').forEach(input => {
+                input.removeEventListener('blur', handleInputBlur);
+                input.addEventListener('blur', handleInputBlur);
+            });
+        }
+    }
+
+    function handleSaveSingle(e) {
+        const btn = e.currentTarget;
+        const productId = btn.getAttribute('data-id');
+        const card = btn.closest('.product-card');
+        const priceInput = card.querySelector('.price-input');
+        const imgInput = card.querySelector('.img-input');
+        if (priceInput) updateProductField(productId, 'price', priceInput.value);
+        if (imgInput) updateProductField(productId, 'imgUrl', imgInput.value);
+    }
+
+    function handleDeleteProduct(e) {
+        const btn = e.currentTarget;
+        const productId = btn.getAttribute('data-id');
+        deleteProduct(productId);
+    }
+
+    function handleInputBlur(e) {
+        const input = e.target;
+        const productId = input.getAttribute('data-id');
+        const field = input.getAttribute('data-field');
+        if (productId && field) {
+            updateProductField(productId, field, input.value);
+        }
+    }
+
+    // 添加产品模态框
+    function showAddProductModal() {
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-card">
+                <h3>➕ 新增产品</h3>
+                <label>产品名称 *</label>
+                <input type="text" id="newName" placeholder="例: BOPP彩色胶带">
+                <label>分类 *</label>
+                <select id="newCategory">
+                    <option value="胶带">胶带</option>
+                    <option value="缠绕膜">缠绕膜</option>
+                    <option value="纸箱">纸箱</option>
+                    <option value="气泡膜">气泡膜</option>
+                    <option value="手套">手套</option>
+                </select>
+                <label>规格 (如: 4.5cm*150米)</label>
+                <input type="text" id="newSpec" placeholder="产品规格">
+                <label>其他信息 (如包装数量)</label>
+                <input type="text" id="newExtra" placeholder="例如: 透明黄/白 | 50卷/箱">
+                <label>价格 (元)</label>
+                <input type="text" id="newPrice" placeholder="留空则显示待询价">
+                <label>图片链接 (URL)</label>
+                <input type="text" id="newImgUrl" placeholder="https://...">
+                <div class="modal-buttons">
+                    <button id="confirmAdd" style="background:#2c5f8a; color:white;">确认添加</button>
+                    <button id="cancelAdd" style="background:#e2e8f0;">取消</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        const confirmBtn = modal.querySelector('#confirmAdd');
+        const cancelBtn = modal.querySelector('#cancelAdd');
+        confirmBtn.onclick = () => {
+            const name = modal.querySelector('#newName').value.trim();
+            if (!name) {
+                alert("请填写产品名称");
+                return;
+            }
+            const category = modal.querySelector('#newCategory').value;
+            const spec = modal.querySelector('#newSpec').value;
+            const extra = modal.querySelector('#newExtra').value;
+            const price = modal.querySelector('#newPrice').value;
+            const imgUrl = modal.querySelector('#newImgUrl').value;
+            addProduct({
+                category, name, spec, extra, price, imgUrl
+            });
+            modal.remove();
+        };
+        cancelBtn.onclick = () => modal.remove();
+    }
+
+    // 管理员验证
+    let adminAuthenticated = false;
+    function showAdminLogin() {
+        const modalDiv = document.createElement('div');
+        modalDiv.className = 'modal-overlay';
+        modalDiv.innerHTML = `
+            <div class="modal-card">
+                <div style="font-size:1.3rem; font-weight:600;">管理员验证</div>
+                <input type="password" id="adminPwd" placeholder="请输入管理密码" autocomplete="off">
+                <div style="display:flex; gap:12px; justify-content:center; margin-top:16px;">
+                    <button id="submitPwd" style="background:#2c5f8a; color:white; border:none; padding:8px 20px; border-radius:40px;">登录</button>
+                    <button id="closeModal" style="background:#e2e8f0; border:none; padding:8px 20px; border-radius:40px;">取消</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modalDiv);
+        const submitBtn = modalDiv.querySelector('#submitPwd');
+        const closeBtn = modalDiv.querySelector('#closeModal');
+        const pwdInput = modalDiv.querySelector('#adminPwd');
+        const closeModal = () => modalDiv.remove();
+        submitBtn.onclick = () => {
+            const pwd = pwdInput.value;
+            if (pwd === "admin168" || pwd === "zsdzc2025") {
+                adminAuthenticated = true;
+                isAdminMode = true;
+                document.getElementById('adminBtn').classList.add('active');
+                document.getElementById('addProductBtn').style.display = 'inline-flex';
+                modalDiv.remove();
+                renderProducts();
+                const hint = document.createElement('div');
+                hint.className = 'save-hint';
+                hint.innerText = '✏️ 管理员模式：可修改/删除/新增产品，分类筛选正常使用';
+                document.querySelector('.toolbar').appendChild(hint);
+                setTimeout(() => hint.remove(), 3000);
+            } else {
+                alert("密码错误！");
+                modalDiv.remove();
+            }
+        };
+        closeBtn.onclick = closeModal;
+        pwdInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') submitBtn.click(); });
+    }
+
+    function exitAdminMode() {
+        isAdminMode = false;
+        adminAuthenticated = false;
+        document.getElementById('adminBtn').classList.remove('active');
+        document.getElementById('addProductBtn').style.display = 'none';
+        renderProducts();
+    }
+
+    function bindFilters() {
+        const btns = document.querySelectorAll('.filter-btn');
+        btns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const cat = btn.getAttribute('data-cat');
+                currentFilter = cat;
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                renderProducts();
+            });
+        });
+    }
+
+    function bindAdminButton() {
+        const adminBtn = document.getElementById('adminBtn');
+        adminBtn.addEventListener('click', () => {
+            if (isAdminMode) {
+                if (confirm("退出管理模式？")) {
+                    exitAdminMode();
+                }
+            } else {
+                showAdminLogin();
+            }
+        });
+        const addBtn = document.getElementById('addProductBtn');
+        addBtn.addEventListener('click', showAddProductModal);
+    }
+
+    function init() {
+        loadDataFromStorage();
+        bindFilters();
+        bindAdminButton();
+        renderProducts();
+        // 双击标题重置 (保留)
+        const header = document.querySelector('.company-name');
+        header.addEventListener('dblclick', () => {
+            if (confirm("⚠️ 重置所有数据为出厂默认？所有修改将丢失！")) {
+                productsData = buildInitialProducts();
+                persistData();
+                renderProducts();
+                alert("已重置");
+            }
+        });
+    }
+
+    window.onload = init;
+</script>
+</body>
+</html>
